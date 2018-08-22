@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="queryElementCardCornerRadius">3dp</dimen>
+    <dimen name="queryElementCardElevation">1dp</dimen>
+
+    <dimen name="queryElementPaddingTop">4dp</dimen>
+    <dimen name="queryElementPaddingBottom">4dp</dimen>
+    <dimen name="queryElementPaddingStart">8dp</dimen>
+    <dimen name="queryElementPaddingEnd">8dp</dimen>
+
+</resources>
