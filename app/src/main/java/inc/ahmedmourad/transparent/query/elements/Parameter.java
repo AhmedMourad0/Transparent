@@ -3,17 +3,17 @@ package inc.ahmedmourad.transparent.query.elements;
 import android.content.Context;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
+import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
 import inc.ahmedmourad.transparent.query.utils.QueryUtils;
 
 public class Parameter implements QueryElement {
 
 	@ColorRes
-	private static final int COLOR = android.R.color.holo_orange_light;
+	private static final int COLOR = R.color.colorParameter;
 
 	private String value = "";
 

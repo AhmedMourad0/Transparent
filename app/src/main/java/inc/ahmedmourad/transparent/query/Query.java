@@ -1,8 +1,6 @@
 package inc.ahmedmourad.transparent.query;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ public class Query {
 
 	private List<QueryElement> elements = new ArrayList<>();
 
-	private Group group = null;
+	private List<Group> groups = new ArrayList<>();
 
 	@NonNull
 	public static Query with(@NonNull final String parameter) {
@@ -28,9 +26,9 @@ public class Query {
 	}
 
 	@NonNull
-	public static Query with(@NonNull final Group group) {
+	public static Query withGroup() {
 		final Query query = new Query();
-		query.setGroup(group);
+		query.beginGroup();
 		return query;
 	}
 
@@ -52,21 +50,29 @@ public class Query {
 
 	@NonNull
 	public Query and() {
+
+		if (elements.size() == 0)
+			throw new IllegalStateException("First element of a query can't be a relation.");
+
 		add(Relation.of(Relation.TYPE_AND));
 		return this;
 	}
 
 	@NonNull
 	public Query or() {
+
+		if (elements.size() == 0)
+			throw new IllegalStateException("First element of a query can't be a relation.");
+
 		add(Relation.of(Relation.TYPE_OR));
 		return this;
 	}
 
 	private void add(@NonNull final QueryElement element) {
-		if (group == null)
+		if (groups.size() == 0)
 			addElement(element);
 		else
-			group.add(element);
+			groups.get(groups.size() - 1).add(element);
 	}
 
 	private void addElement(@NonNull final QueryElement element) {
@@ -89,31 +95,26 @@ public class Query {
 
 	@NonNull
 	public Query beginGroup() {
-
-		if (group != null)
-			throw new IllegalStateException("You must end the group first");
-
-		setGroup(new Group());
-
+		groups.add(new Group());
 		return this;
 	}
 
 	@NonNull
 	public Query endGroup() {
 
-		if (group == null)
-			return this;
+		if (groups.size() == 0)
+			throw new IllegalStateException("You must begin a group first before ending it.");
 
-		if (group.isValid())
+		final Group group = groups.get(groups.size() - 1);
+
+		if (groups.size() > 1)
+			groups.get(groups.size() - 2).group(group);
+		else if (group.isValid())
 			addElement(group);
 
-		setGroup(null);
+		groups.remove(group);
 
 		return this;
-	}
-
-	private void setGroup(@Nullable final Group group) {
-		this.group = group;
 	}
 
 	public void display(@NonNull final ViewGroup viewGroup) {
@@ -121,9 +122,15 @@ public class Query {
 		for (int i = 0; i < elements.size(); ++i)
 			elements.get(i).display(viewGroup);
 
-		if (group != null && group.isValid()) {
-			viewGroup.addView(group.getLeadingView(viewGroup.getContext()));
-			group.displayElements(viewGroup);
+		for (int i = 0; i < groups.size(); ++i) {
+
+			final Group group = groups.get(i);
+
+			if (group != null) {
+				viewGroup.addView(group.getLeadingView(viewGroup.getContext()));
+				if (group.isValid())
+					group.displayElements(viewGroup);
+			}
 		}
 	}
 
@@ -131,9 +138,10 @@ public class Query {
 	@NonNull
 	public String toString() {
 
-		endGroup();
+		while (groups.size() > 0)
+			endGroup();
 
-		elements = QueryUtils.fix(elements);
+		elements = QueryUtils.trim(elements);
 
 		if (elements.size() == 0)
 			return "";

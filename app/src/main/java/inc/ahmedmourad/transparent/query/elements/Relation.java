@@ -12,13 +12,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
 import inc.ahmedmourad.transparent.query.utils.QueryUtils;
 
 public class Relation implements QueryElement {
 
 	@ColorRes
-	private static final int COLOR = android.R.color.holo_blue_light;
+	private static final int COLOR = R.color.colorRelation;
 
 	public static final int TYPE_AND = 0;
 	public static final int TYPE_OR = 1;

@@ -9,54 +9,55 @@
     android:paddingStart="8dp"
     android:paddingTop="16dp">
 
-    <com.google.android.flexbox.FlexboxLayout
-        android:id="@+id/query_flexbox"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        app:alignContent="flex_start"
-        app:alignItems="stretch"
-        app:flexDirection="row"
-        app:flexWrap="wrap"
-        app:showDivider="end" />
+        android:layout_height="wrap_content">
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/query_flexbox"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:alignContent="flex_start"
+            app:alignItems="center"
+            app:flexDirection="row"
+            app:flexWrap="wrap"
+            app:showDivider="end" />
+
+    </android.support.v4.widget.NestedScrollView>
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="16dp"
-        style="?android:attr/buttonBarStyle">
+        android:paddingBottom="16dp">
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@android:color/white"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?selectableItemBackground"
-            style="?android:attr/buttonBarButtonStyle"
-            android:text="Group" />
+            android:text="Begin Group" />
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@android:color/white"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?selectableItemBackground"
+            android:text="End Group" />
+
+        <Button
             style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="And" />
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@android:color/white"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?selectableItemBackground"
-            style="?android:attr/buttonBarButtonStyle"
             android:text="Or" />
 
     </LinearLayout>

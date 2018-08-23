@@ -4,7 +4,11 @@
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#ef6c00</color>
 
-    <color name="refresh_progress_1">@color/colorAccent</color>
-    <color name="refresh_progress_2">#8E24AA</color>
-    <color name="refresh_progress_3">#607D8B</color>
+    <color name="colorRefresh_1">@color/colorAccent</color>
+    <color name="colorRefresh_2">#8E24AA</color>
+    <color name="colorRefresh_3">#607D8B</color>
+
+    <color name="colorRelation">@android:color/holo_blue_light</color>
+    <color name="colorParameter">@android:color/holo_orange_light</color>
+    <color name="colorGroup">@android:color/holo_green_light</color>
 </resources>

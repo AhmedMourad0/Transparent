@@ -9,13 +9,14 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
 import inc.ahmedmourad.transparent.query.utils.QueryUtils;
 
 public class Group implements QueryElement {
 
 	@ColorRes
-	private static final int COLOR = android.R.color.holo_green_light;
+	private static final int COLOR = R.color.colorGroup;
 
 	private List<QueryElement> elements = new ArrayList<>();
 
@@ -44,7 +45,8 @@ public class Group implements QueryElement {
 
 	@NonNull
 	public Group group(@NonNull final Group group) {
-		add(group);
+		if (group.isValid())
+			add(group);
 		return this;
 	}
 
@@ -88,16 +90,13 @@ public class Group implements QueryElement {
 
 	@Override
 	public boolean isValid() {
-		return QueryUtils.fix(elements).size() > 0;
+		return QueryUtils.trim(elements).size() > 0;
 	}
 
 	@Override
 	public void display(@NonNull final ViewGroup viewGroup) {
-
 		viewGroup.addView(getLeadingView(viewGroup.getContext()));
-
 		displayElements(viewGroup);
-
 		viewGroup.addView(getTrailingView(viewGroup.getContext()));
 	}
 
@@ -108,19 +107,15 @@ public class Group implements QueryElement {
 
 	@NonNull
 	public View getLeadingView(@NonNull Context context) {
-
 		if (leadingView == null)
 			leadingView = QueryUtils.createView(context, COLOR, "(");
-
 		return leadingView;
 	}
 
 	@NonNull
 	private View getTrailingView(@NonNull Context context) {
-
 		if (trailingView == null)
 			trailingView = QueryUtils.createView(context, COLOR, ")");
-
 		return trailingView;
 	}
 
@@ -128,7 +123,7 @@ public class Group implements QueryElement {
 	@Override
 	public String toString() {
 
-		elements = QueryUtils.fix(elements);
+		elements = QueryUtils.trim(elements);
 
 		if (elements.size() == 0)
 			return "";

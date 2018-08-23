@@ -9,30 +9,29 @@ import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.flexbox.FlexboxLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 public final class QueryUtils {
 
-	public static List<QueryElement> fix(@NonNull final List<QueryElement> elements) {
+	public static List<QueryElement> trim(@NonNull final List<QueryElement> elements) {
 
 		final List<QueryElement> clone = new ArrayList<>(elements);
 
-		trim(elements);
+		while (clone.size() > 0 && (clone.get(0).isRelation() || !clone.get(0).isValid()))
+			clone.remove(0);
+
+		while (clone.size() > 0 && (clone.get(clone.size() - 1).isRelation() || !clone.get(clone.size() - 1).isValid()))
+			clone.remove(clone.size() - 1);
 
 		return clone;
-	}
-
-	private static void trim(@NonNull final List<QueryElement> elements) {
-
-		while (elements.size() > 0 && (elements.get(0).isRelation() || !elements.get(0).isValid()))
-			elements.remove(0);
-
-		while (elements.size() > 0 && (elements.get(elements.size() - 1).isRelation() || !elements.get(elements.size() - 1).isValid()))
-			elements.remove(elements.size() - 1);
 	}
 
 	@NonNull
@@ -40,32 +39,35 @@ public final class QueryUtils {
 
 		final CardView cardView = new CardView(context);
 
-		cardView.setClickable(true);
-		cardView.setFocusable(true);
-
-		final TypedValue typedValue = new TypedValue();
-		context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true);
-		cardView.setBackgroundResource(typedValue.resourceId);
-
 		cardView.setCardBackgroundColor(ContextCompat.getColor(context, backgroundColor));
 
 		cardView.setRadius(context.getResources().getDimension(R.dimen.queryElementCardCornerRadius));
 
 		cardView.setCardElevation(context.getResources().getDimension(R.dimen.queryElementCardElevation));
 
-		cardView.setPadding(context.getResources().getDimensionPixelSize(R.dimen.queryElementPaddingStart),
+		final TextView textView = new TextView(context);
+
+		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+
+		textView.setPadding(context.getResources().getDimensionPixelSize(R.dimen.queryElementPaddingStart),
 				context.getResources().getDimensionPixelSize(R.dimen.queryElementPaddingTop),
 				context.getResources().getDimensionPixelSize(R.dimen.queryElementPaddingEnd),
 				context.getResources().getDimensionPixelSize(R.dimen.queryElementPaddingBottom)
 		);
 
-		final TextView textView = new TextView(context);
-
-		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-
 		textView.setText(value);
 
 		cardView.addView(textView, 0);
+
+		final FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+
+		params.setMargins(context.getResources().getDimensionPixelSize(R.dimen.queryCardMargin),
+				context.getResources().getDimensionPixelSize(R.dimen.queryCardMargin),
+				context.getResources().getDimensionPixelSize(R.dimen.queryCardMargin),
+				context.getResources().getDimensionPixelSize(R.dimen.queryCardMargin)
+		);
+
+		cardView.setLayoutParams(params);
 
 		return cardView;
 	}

@@ -37,9 +37,33 @@ public class QueryPreference extends DialogPreference {
 			.endGroup()
 			.or()
 			.beginGroup()
-			.param("C")
+			.param("D")
 			.and()
-			.group(Group.with("D").or().param("E"))
+			.beginGroup()
+			.param("E")
+			.or()
+			.param("F")
+			.and()
+			.beginGroup()
+			.param("G")
+			.and()
+			.param("H")
+			.endGroup()
+			.and()
+			.group(Group.with("I").or().param("J"))
+			.or()
+			.beginGroup()
+			.param("K")
+			.and()
+			.param("L")
+			.endGroup()
+			.and()
+			.group(Group.with("M").or().param("N"))
+			.and()
+			.param("O")
+			.endGroup()
+			.and()
+			.param("P")
 			.endGroup();
 
 	private Unbinder unbinder;
@@ -97,7 +121,7 @@ public class QueryPreference extends DialogPreference {
 
 		final QuerySavedState state = new QuerySavedState(superState);
 
-//		state.setQuery(queryTextView.getText().toString());
+		state.setQuery(query.toString());
 
 		return state;
 	}

@@ -28,7 +28,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-
 import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.adapter.ArticlesRecyclerAdapter;
 import inc.ahmedmourad.transparent.pojo.SimpleArticle;
@@ -110,9 +109,9 @@ public class HomeController extends BaseController implements LoaderManager.Load
 	private void initializeRefreshLayout() {
 
 		refreshLayout.setColorSchemeResources(
-				R.color.refresh_progress_1,
-				R.color.refresh_progress_2,
-				R.color.refresh_progress_3
+				R.color.colorRefresh_1,
+				R.color.colorRefresh_2,
+				R.color.colorRefresh_3
 		);
 
 		refreshLayout.setOnRefreshListener(this::loadData);
