@@ -63,6 +63,11 @@ public class Relation implements QueryElement {
 		viewGroup.addView(getView(viewGroup.getContext()));
 	}
 
+	@Override
+	public int getElementType() {
+		return TYPE_RELATION;
+	}
+
 	@NonNull
 	private View getView(@NonNull Context context) {
 

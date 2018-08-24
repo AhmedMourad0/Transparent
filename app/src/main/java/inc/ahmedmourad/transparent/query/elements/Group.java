@@ -100,6 +100,11 @@ public class Group implements QueryElement {
 		viewGroup.addView(getTrailingView(viewGroup.getContext()));
 	}
 
+	@Override
+	public int getElementType() {
+		return TYPE_GROUP;
+	}
+
 	public void displayElements(@NonNull ViewGroup viewGroup) {
 		for (int i = 0; i < elements.size(); ++i)
 			elements.get(i).display(viewGroup);

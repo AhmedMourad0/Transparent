@@ -58,6 +58,11 @@ public class Parameter implements QueryElement {
 		viewGroup.addView(getView(viewGroup.getContext()));
 	}
 
+	@Override
+	public int getElementType() {
+		return TYPE_PARAMETER;
+	}
+
 	@NonNull
 	private View getView(@NonNull final Context context) {
 

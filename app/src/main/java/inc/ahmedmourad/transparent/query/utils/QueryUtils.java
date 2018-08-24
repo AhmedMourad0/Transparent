@@ -15,9 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import inc.ahmedmourad.transparent.R;
+import inc.ahmedmourad.transparent.query.elements.Group;
+import inc.ahmedmourad.transparent.query.elements.Parameter;
+import inc.ahmedmourad.transparent.query.elements.Relation;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
+import inc.ahmedmourad.transparent.query.elements.model.QueryElement.QueryElementType;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static inc.ahmedmourad.transparent.query.elements.model.QueryElement.TYPE_GROUP;
+import static inc.ahmedmourad.transparent.query.elements.model.QueryElement.TYPE_PARAMETER;
+import static inc.ahmedmourad.transparent.query.elements.model.QueryElement.TYPE_RELATION;
 
 public final class QueryUtils {
 
@@ -74,6 +81,25 @@ public final class QueryUtils {
 
 	public static void updateView(@NonNull final ViewGroup view, @NonNull final String newValue) {
 		((TextView) view.getChildAt(0)).setText(newValue);
+	}
+
+	@NonNull
+	public static Class<? extends QueryElement> resolveElementType(@QueryElementType final int type) {
+
+		switch (type) {
+
+			case TYPE_PARAMETER:
+				return Parameter.class;
+
+			case TYPE_RELATION:
+				return Relation.class;
+
+			case TYPE_GROUP:
+				return Group.class;
+
+			default:
+				throw new IllegalArgumentException("Unsupported Query Element Type: " + type);
+		}
 	}
 
 	private QueryUtils() {

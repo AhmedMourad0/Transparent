@@ -3,6 +3,9 @@ package inc.ahmedmourad.transparent.query;
 import android.support.annotation.NonNull;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +13,8 @@ import inc.ahmedmourad.transparent.query.elements.Group;
 import inc.ahmedmourad.transparent.query.elements.Parameter;
 import inc.ahmedmourad.transparent.query.elements.Relation;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
+import inc.ahmedmourad.transparent.query.gson.deserializer.Deserializer;
+import inc.ahmedmourad.transparent.query.gson.serializer.Serializer;
 import inc.ahmedmourad.transparent.query.utils.QueryUtils;
 
 public class Query {
@@ -17,6 +22,14 @@ public class Query {
 	private List<QueryElement> elements = new ArrayList<>();
 
 	private List<Group> groups = new ArrayList<>();
+
+	private static Gson gson;
+
+	static {
+		gson = new GsonBuilder().registerTypeAdapter(List.class, new Serializer())
+				.registerTypeAdapter(List.class, new Deserializer())
+				.create();
+	}
 
 	@NonNull
 	public static Query with(@NonNull final String parameter) {
@@ -30,6 +43,16 @@ public class Query {
 		final Query query = new Query();
 		query.beginGroup();
 		return query;
+	}
+
+	@NonNull
+	public static String toJson(@NonNull final Query query) {
+		return gson.toJson(query);
+	}
+
+	@NonNull
+	public static Query fromJson(@NonNull final String json) {
+		return gson.fromJson(json, Query.class);
 	}
 
 	private Query() {
@@ -132,6 +155,11 @@ public class Query {
 					group.displayElements(viewGroup);
 			}
 		}
+	}
+
+	@NonNull
+	public String toJson() {
+		return toJson(this);
 	}
 
 	@Override
