@@ -124,6 +124,50 @@ public class UnitTest {
 
 		System.out.println(query4);
 
+		System.out.println(Query.empty().toJson());
+
+		/*
+
+		Query.with("A")
+			.and()
+			.beginGroup()
+			.param("B")
+			.or()
+			.param("C")
+			.endGroup()
+			.or()
+			.beginGroup()
+			.param("D")
+			.and()
+			.beginGroup()
+			.param("E")
+			.or()
+			.param("F")
+			.and()
+			.beginGroup()
+			.param("G")
+			.and()
+			.param("H")
+			.endGroup()
+			.and()
+			.group(Group.with("I").or().param("J"))
+			.or()
+			.beginGroup()
+			.param("K")
+			.and()
+			.param("L")
+			.endGroup()
+			.and()
+			.group(Group.with("M").or().param("N"))
+			.and()
+			.param("O")
+			.endGroup()
+			.and()
+			.param("P")
+			.endGroup()
+
+		*/
+
 //		assertEquals("\"A\" AND \"B\" OR (\"C\" AND (\"D\" OR \"E\"))", query);
 		assertEquals("\"A\" AND (\"B\" OR \"C\") OR (\"D\" AND (\"E\" OR \"F\" AND (\"G\" AND \"H\") AND (\"I\" OR \"J\") OR (\"K\" AND \"L\") AND (\"M\" OR \"N\") AND \"O\") AND \"P\")", query3.toString());
 		assertEquals("\"A\" AND (\"B\" OR \"C\") OR (\"D\" AND (\"E\" OR \"F\" AND (\"G\" AND \"H\") AND (\"I\" OR \"J\") OR (\"K\" AND \"L\") AND (\"M\" OR \"N\") AND \"O\") AND \"P\")", query4);

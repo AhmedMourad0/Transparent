@@ -1,5 +1,6 @@
 package inc.ahmedmourad.transparent.utils;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +14,9 @@ import java.net.URL;
 import java.util.List;
 
 import inc.ahmedmourad.transparent.BuildConfig;
+import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.pojo.SimpleArticle;
+import inc.ahmedmourad.transparent.query.Query;
 
 public final class NetworkUtils {
 
@@ -25,20 +28,29 @@ public final class NetworkUtils {
 	}
 
 	@NonNull
-	public static List<SimpleArticle> fetchSimpleArticles() {
+	public static List<SimpleArticle> fetchSimpleArticles(@NonNull final Context context) {
 
-		//https://content.guardianapis.com/search?show-fields=thumbnail,byline,wordcount&api-key=THE_GUARDIAN_API_KEY
+		//https://content.guardianapis.com/search?show-fields=thumbnail,byline,wordcount&q=QUERY&api-key=THE_GUARDIAN_API_KEY
 		final String BASE_URL = "https://content.guardianapis.com/";
 		final String PATH_SEARCH = "search";
 		final String PARAM_SHOW_FIELDS = "show-fields";
 		final String PARAM_PAGE_SIZE = "page-size";
+		final String PARAM_QUERY = "q";
 		final String PARAM_API_KEY = "api-key";
 
-		return JsonUtils.extractSimpleArticles(getJsonStringFromUri(Uri.parse(BASE_URL).buildUpon()
+		final Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
 				.appendPath(PATH_SEARCH)
 				.appendQueryParameter(PARAM_SHOW_FIELDS, "thumbnail,byline,wordcount")
-				.appendQueryParameter(PARAM_PAGE_SIZE, "20")
-				.appendQueryParameter(PARAM_API_KEY, BuildConfig.THE_GUARDIAN_API_KEY)
+				.appendQueryParameter(PARAM_PAGE_SIZE, "20");
+
+		final String queryJson = PreferenceUtils.defaultPrefs(context).getString(context.getString(R.string.pref_query), null);
+		final Query q = queryJson == null ? null : Query.fromJson(queryJson);
+
+		if (q != null && !q.isEmpty())
+			builder.appendQueryParameter(PARAM_QUERY, q.toString());
+
+		return JsonUtils.extractSimpleArticles(getJsonStringFromUri(
+				builder.appendQueryParameter(PARAM_API_KEY, BuildConfig.THE_GUARDIAN_API_KEY)
 				.build()));
 	}
 

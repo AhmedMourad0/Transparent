@@ -2,7 +2,8 @@ package inc.ahmedmourad.transparent.query.elements.model;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.view.ViewGroup;
+
+import com.google.android.flexbox.FlexboxLayout;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,6 +16,7 @@ public interface QueryElement {
 	int TYPE_RELATION = 1;
 	int TYPE_GROUP = 2;
 
+	// ensuring toString is always annotated with NonNull
 	@NonNull
 	String toString();
 
@@ -22,7 +24,9 @@ public interface QueryElement {
 
 	boolean isValid();
 
-	void display(@NonNull ViewGroup viewGroup);
+	void validate();
+
+	void display(@NonNull FlexboxLayout flexbox);
 
 	@QueryElementType
 	int getElementType();

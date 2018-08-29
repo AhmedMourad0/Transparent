@@ -1,8 +1,9 @@
 package inc.ahmedmourad.transparent.query;
 
 import android.support.annotation.NonNull;
-import android.view.ViewGroup;
+import android.support.annotation.Nullable;
 
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -21,9 +22,12 @@ public class Query {
 
 	private List<QueryElement> elements = new ArrayList<>();
 
-	private List<Group> groups = new ArrayList<>();
+	private final List<Group> groups = new ArrayList<>();
 
-	private static Gson gson;
+	@Nullable
+	private transient OnElementAddedListener listener = null;
+
+	private static final transient Gson gson;
 
 	static {
 		gson = new GsonBuilder().registerTypeAdapter(List.class, new Serializer())
@@ -46,13 +50,13 @@ public class Query {
 	}
 
 	@NonNull
-	public static String toJson(@NonNull final Query query) {
-		return gson.toJson(query);
+	public static Query fromJson(@NonNull final String json) {
+		return gson.fromJson(json, Query.class);
 	}
 
 	@NonNull
-	public static Query fromJson(@NonNull final String json) {
-		return gson.fromJson(json, Query.class);
+	public static Query empty() {
+		return new Query();
 	}
 
 	private Query() {
@@ -61,33 +65,51 @@ public class Query {
 
 	@NonNull
 	public Query param(@NonNull final String parameter) {
+
 		add(Parameter.of(parameter));
+
+		if (listener != null)
+			listener.onElementAdded(elements, groups);
+
 		return this;
 	}
 
 	@NonNull
 	public Query group(@NonNull final Group group) {
+
 		add(group);
+
+		if (listener != null)
+			listener.onElementAdded(elements, groups);
+
 		return this;
 	}
 
 	@NonNull
 	public Query and() {
 
-		if (elements.size() == 0)
-			throw new IllegalStateException("First element of a query can't be a relation.");
+		if (elements.size() == 0 && (groups.size() == 0 || groups.get(groups.size() - 1).size() == 0))
+			throw new IllegalStateException("First element of a query or a group can't be a relation.");
 
 		add(Relation.of(Relation.TYPE_AND));
+
+		if (listener != null)
+			listener.onElementAdded(elements, groups);
+
 		return this;
 	}
 
 	@NonNull
 	public Query or() {
 
-		if (elements.size() == 0)
-			throw new IllegalStateException("First element of a query can't be a relation.");
+		if (elements.size() == 0 && (groups.size() == 0 || groups.get(groups.size() - 1).size() == 0))
+			throw new IllegalStateException("First element of a query or a group can't be a relation.");
 
 		add(Relation.of(Relation.TYPE_OR));
+
+		if (listener != null)
+			listener.onElementAdded(elements, groups);
+
 		return this;
 	}
 
@@ -118,7 +140,12 @@ public class Query {
 
 	@NonNull
 	public Query beginGroup() {
+
 		groups.add(new Group());
+
+		if (listener != null)
+			listener.onElementAdded(elements, groups);
+
 		return this;
 	}
 
@@ -130,6 +157,8 @@ public class Query {
 
 		final Group group = groups.get(groups.size() - 1);
 
+		group.validate();
+
 		if (groups.size() > 1)
 			groups.get(groups.size() - 2).group(group);
 		else if (group.isValid())
@@ -137,39 +166,75 @@ public class Query {
 
 		groups.remove(group);
 
+		if (listener != null)
+			listener.onElementAdded(elements, groups);
+
 		return this;
 	}
 
-	public void display(@NonNull final ViewGroup viewGroup) {
+	public Query clear() {
+
+		elements.clear();
+		groups.clear();
+
+		if (listener != null)
+			listener.onElementAdded(elements, groups);
+
+		return this;
+	}
+
+	private void validate() {
+
+		while (groups.size() > 0)
+			endGroup();
+
+		elements = QueryUtils.trim(elements);
 
 		for (int i = 0; i < elements.size(); ++i)
-			elements.get(i).display(viewGroup);
+			elements.get(i).validate();
+	}
+
+	public void display(@NonNull final FlexboxLayout flexbox) {
+
+		flexbox.removeAllViews();
+
+		for (int i = 0; i < elements.size(); ++i)
+			elements.get(i).display(flexbox);
 
 		for (int i = 0; i < groups.size(); ++i) {
 
 			final Group group = groups.get(i);
 
-			if (group != null) {
-				viewGroup.addView(group.getLeadingView(viewGroup.getContext()));
-				if (group.isValid())
-					group.displayElements(viewGroup);
-			}
+			flexbox.addView(group.getLeadingView(flexbox.getContext()));
+
+			if (group.isValid())
+				group.displayElements(flexbox);
 		}
+	}
+
+	public boolean isEmpty() {
+		return QueryUtils.trim(elements).size() == 0 && QueryUtils.trim(groups).size() == 0;
+	}
+
+	void setOnElementAddedListener(@Nullable final OnElementAddedListener listener) {
+
+		this.listener = listener;
+
+		if (this.listener != null)
+			this.listener.onElementAdded(elements, groups);
 	}
 
 	@NonNull
 	public String toJson() {
-		return toJson(this);
+		validate();
+		return gson.toJson(this);
 	}
 
 	@Override
 	@NonNull
 	public String toString() {
 
-		while (groups.size() > 0)
-			endGroup();
-
-		elements = QueryUtils.trim(elements);
+		validate();
 
 		if (elements.size() == 0)
 			return "";
@@ -183,5 +248,49 @@ public class Query {
 			builder.append(elements.get(i)).append(" ");
 
 		return builder.toString().trim().replaceAll(" +", " ");
+	}
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (this == o)
+			return true;
+
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		final Query query = (Query) o;
+
+		if (elements.size() != query.elements.size() || groups.size() != query.groups.size())
+			return false;
+
+		for (int i = 0; i < elements.size(); ++i)
+			if (!elements.get(i).equals(query.elements.get(i)))
+				return false;
+
+		for (int i = 0; i < groups.size(); ++i)
+			if (!groups.get(i).equals(query.groups.get(i)))
+				return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+
+		int code = 30;
+
+		for (int i = 0; i < elements.size(); ++i)
+			code *= elements.get(i).hashCode();
+
+		for (int i = 0; i < groups.size(); ++i)
+			code *= groups.get(i).hashCode();
+
+		return code;
+	}
+
+	@FunctionalInterface
+	interface OnElementAddedListener {
+		void onElementAdded(@NonNull List<QueryElement> elements, @NonNull List<Group> groups);
 	}
 }

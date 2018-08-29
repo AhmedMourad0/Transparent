@@ -7,6 +7,8 @@ import android.preference.DialogPreference;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.google.android.flexbox.FlexboxLayout;
 
@@ -16,55 +18,47 @@ import butterknife.Unbinder;
 import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.custom.state.QuerySavedState;
 import inc.ahmedmourad.transparent.query.Query;
-import inc.ahmedmourad.transparent.query.elements.Group;
+import inc.ahmedmourad.transparent.query.ViewStateManager;
 
 public class QueryPreference extends DialogPreference {
 
-	private static final String DEFAULT_VALUE = "";
+	private static final String DEFAULT_VALUE = Query.empty().toJson();
 
 	@SuppressWarnings("WeakerAccess")
 	@BindView(R.id.query_flexbox)
 	FlexboxLayout flexbox;
 
-	private String currentQuery = DEFAULT_VALUE;
+	@SuppressWarnings("WeakerAccess")
+	@BindView(R.id.query_begin_group)
+	Button beginGroupButton;
 
-	private Query query = Query.with("A")
-			.and()
-			.beginGroup()
-			.param("B")
-			.or()
-			.param("C")
-			.endGroup()
-			.or()
-			.beginGroup()
-			.param("D")
-			.and()
-			.beginGroup()
-			.param("E")
-			.or()
-			.param("F")
-			.and()
-			.beginGroup()
-			.param("G")
-			.and()
-			.param("H")
-			.endGroup()
-			.and()
-			.group(Group.with("I").or().param("J"))
-			.or()
-			.beginGroup()
-			.param("K")
-			.and()
-			.param("L")
-			.endGroup()
-			.and()
-			.group(Group.with("M").or().param("N"))
-			.and()
-			.param("O")
-			.endGroup()
-			.and()
-			.param("P")
-			.endGroup();
+	@SuppressWarnings("WeakerAccess")
+	@BindView(R.id.query_end_group)
+	Button endGroupButton;
+
+	@SuppressWarnings("WeakerAccess")
+	@BindView(R.id.query_and)
+	Button andButton;
+
+	@SuppressWarnings("WeakerAccess")
+	@BindView(R.id.query_or)
+	Button orButton;
+
+	@SuppressWarnings("WeakerAccess")
+	@BindView(R.id.query_clear)
+	Button clearButton;
+
+	@SuppressWarnings("WeakerAccess")
+	@BindView(R.id.query_keyword)
+	EditText keywordEditText;
+
+	@SuppressWarnings("WeakerAccess")
+	@BindView(R.id.query_enter)
+	Button enterButton;
+
+	private Query query = Query.empty();
+
+	private ViewStateManager viewStateManager;
 
 	private Unbinder unbinder;
 
@@ -76,16 +70,17 @@ public class QueryPreference extends DialogPreference {
 		setNegativeButtonText(android.R.string.cancel);
 
 		setDialogIcon(null);
-		setPersistent(false);
+		setPersistent(true);
 	}
 
 	@Override
 	protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
 		if (restorePersistedValue) {
-			currentQuery = getPersistedString(DEFAULT_VALUE);
+			query = Query.fromJson(getPersistedString(DEFAULT_VALUE));
 		} else {
-			currentQuery = (String) defaultValue;
-			persistString(currentQuery);
+			final String value = (String) defaultValue;
+			query = Query.fromJson(value);
+			persistString(value);
 		}
 	}
 
@@ -96,58 +91,73 @@ public class QueryPreference extends DialogPreference {
 	}
 
 	@Override
-	protected void onBindDialogView(View view) {
+	protected void onBindDialogView(final View view) {
 		super.onBindDialogView(view);
 
 		if (unbinder == null)
 			unbinder = ButterKnife.bind(this, view);
 
-		query.display(flexbox);
+		if (viewStateManager == null)
+			viewStateManager = ViewStateManager.Builder.with(query)
+					.display(flexbox)
+					.enter(enterButton)
+					.beginGroup(beginGroupButton)
+					.endGroup(endGroupButton)
+					.and(andButton)
+					.or(orButton)
+					.keyword(keywordEditText)
+					.clear(clearButton)
+					.build();
 	}
 
 	@Override
 	protected void onDialogClosed(final boolean positiveResult) {
-		if (positiveResult)
-			persistString(query.toString());
+
+		final String keyword = keywordEditText.getText().toString().trim();
+
+		if (query.isEmpty() && keyword.length() > 0)
+			query.param(keyword);
+
+		if (positiveResult) {
+			final String newValue = query.toJson();
+			persistString(newValue);
+			callChangeListener(newValue);
+		}
+
+		unbindView();
 	}
 
 	@Override
 	protected Parcelable onSaveInstanceState() {
-
-		final Parcelable superState = super.onSaveInstanceState();
-
-		if (isPersistent())
-			return superState;
-
-		final QuerySavedState state = new QuerySavedState(superState);
-
-		state.setQuery(query.toString());
-
+		final QuerySavedState state = new QuerySavedState(super.onSaveInstanceState());
+		state.setQuery(query.toJson());
+		unbindView();
 		return state;
 	}
 
 	@Override
 	protected void onRestoreInstanceState(@Nullable final Parcelable restoredState) {
 
-		if (restoredState == null || !QuerySavedState.class.isInstance(restoredState)) {
-			super.onRestoreInstanceState(restoredState);
+		if (restoredState == null)
 			return;
-		}
 
 		final QuerySavedState state = (QuerySavedState) restoredState;
+
 		super.onRestoreInstanceState(state.getSuperState());
 
-//		queryTextView.setText(state.getQuery());
+		query = Query.fromJson(state.getQuery());
 	}
 
-//	@Override
+	//	@Override
 //	public void onActivityDestroy() {
 //		super.onActivityDestroy();
 //		unbindView();
 //	}
 //
-//	private void unbindView() {
-//		unbinder.unbind();
-//		unbinder = null;
-//	}
+	private void unbindView() {
+		viewStateManager.release();
+		viewStateManager = null;
+		unbinder.unbind();
+		unbinder = null;
+	}
 }

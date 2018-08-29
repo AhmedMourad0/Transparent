@@ -7,10 +7,9 @@
         android:title="@string/pref_title_social_recommendations" />
 
     <inc.ahmedmourad.transparent.custom.QueryPreference
-        android:defaultValue="Ahmed Mourad"
-        android:key="query"
-        android:summary="Construct a filter to apply to your news feed"
-        android:title="Filter" />
+        android:key="@string/pref_query"
+        android:summary="Construct a search query to use "
+        android:title="Search" />
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its query by the activity code. -->

@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.flexbox.FlexboxLayout;
+
 import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
 import inc.ahmedmourad.transparent.query.utils.QueryUtils;
@@ -13,17 +15,17 @@ import inc.ahmedmourad.transparent.query.utils.QueryUtils;
 public class Parameter implements QueryElement {
 
 	@ColorRes
-	private static final int COLOR = R.color.colorParameter;
+	private static final transient int COLOR = R.color.colorParameter;
 
 	private String value = "";
 
-	private ViewGroup view = null;
+	private transient ViewGroup view = null;
 
 	@NonNull
 	public static Parameter of(@NonNull final String value) {
 
 		if (value.trim().length() == 0)
-			throw new IllegalStateException("Parameter value cannot be an empty string");
+			throw new IllegalArgumentException("Parameter value cannot be an empty string");
 
 		final Parameter parameter = new Parameter();
 		parameter.setValue(value);
@@ -54,8 +56,13 @@ public class Parameter implements QueryElement {
 	}
 
 	@Override
-	public void display(@NonNull final ViewGroup viewGroup) {
-		viewGroup.addView(getView(viewGroup.getContext()));
+	public void validate() {
+		// Can't be validated without producing unexpected results
+	}
+
+	@Override
+	public void display(@NonNull final FlexboxLayout flexbox) {
+		flexbox.addView(getView(flexbox.getContext()));
 	}
 
 	@Override
@@ -78,5 +85,24 @@ public class Parameter implements QueryElement {
 	@Override
 	public String toString() {
 		return "\"" + getValue() + "\"";
+	}
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (this == o)
+			return true;
+
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		final Parameter parameter = (Parameter) o;
+
+		return getValue().equals(parameter.getValue());
+	}
+
+	@Override
+	public int hashCode() {
+		return getValue().hashCode();
 	}
 }

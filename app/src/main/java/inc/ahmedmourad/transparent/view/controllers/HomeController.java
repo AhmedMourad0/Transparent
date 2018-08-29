@@ -3,6 +3,7 @@ package inc.ahmedmourad.transparent.view.controllers;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -31,10 +32,12 @@ import butterknife.Unbinder;
 import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.adapter.ArticlesRecyclerAdapter;
 import inc.ahmedmourad.transparent.pojo.SimpleArticle;
+import inc.ahmedmourad.transparent.query.Query;
 import inc.ahmedmourad.transparent.utils.NetworkUtils;
+import inc.ahmedmourad.transparent.utils.PreferenceUtils;
 import inc.ahmedmourad.transparent.view.controllers.base.BaseController;
 
-public class HomeController extends BaseController implements LoaderManager.LoaderCallbacks<List<SimpleArticle>> {
+public class HomeController extends BaseController implements LoaderManager.LoaderCallbacks<List<SimpleArticle>>, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final int LOADER_ID = 0;
 
@@ -54,7 +57,11 @@ public class HomeController extends BaseController implements LoaderManager.Load
 	@BindView(R.id.home_recycler)
 	RecyclerView recyclerView;
 
+	private Query query;
+
 	private ArticlesRecyclerAdapter adapter;
+
+	private SharedPreferences prefs;
 
 	private Context context;
 
@@ -82,16 +89,18 @@ public class HomeController extends BaseController implements LoaderManager.Load
 
 		setSupportActionBar(toolbar);
 
+		prefs = PreferenceUtils.defaultPrefs(context);
+
 		initializeRecyclerView();
 
 		initializeRefreshLayout();
 
 		metaTextView.setOnClickListener(v -> {
 			if (v.getVisibility() == View.VISIBLE)
-				loadData();
+				loadData(false);
 		});
 
-		loadData();
+		loadData(false);
 
 		return view;
 	}
@@ -114,10 +123,10 @@ public class HomeController extends BaseController implements LoaderManager.Load
 				R.color.colorRefresh_3
 		);
 
-		refreshLayout.setOnRefreshListener(this::loadData);
+		refreshLayout.setOnRefreshListener(() -> loadData(false));
 	}
 
-	private void loadData() {
+	private void loadData(final boolean restartLoader) {
 
 		metaTextView.setVisibility(View.GONE);
 		refreshLayout.setRefreshing(true);
@@ -133,10 +142,17 @@ public class HomeController extends BaseController implements LoaderManager.Load
 
 				final NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-				if (networkInfo != null && networkInfo.isConnected())
-					((FragmentActivity) activity).getSupportLoaderManager().initLoader(LOADER_ID, null, this);
-				else
+				if (networkInfo != null && networkInfo.isConnected()) {
+
+					if (restartLoader)
+						((FragmentActivity) activity).getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+					else
+						((FragmentActivity) activity).getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+				} else {
+
 					displayConnectionFailed();
+				}
 
 			} else {
 				displayError();
@@ -179,6 +195,32 @@ public class HomeController extends BaseController implements LoaderManager.Load
 	}
 
 	@Override
+	protected void onAttach(@NonNull View view) {
+		super.onAttach(view);
+		prefs.registerOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	protected void onDetach(@NonNull View view) {
+		prefs.unregisterOnSharedPreferenceChangeListener(this);
+		super.onDetach(view);
+	}
+
+	@Override
+	protected void onActivityStarted(@NonNull Activity activity) {
+		super.onActivityStarted(activity);
+
+		if (query != null) {
+
+			final String queryJson = prefs.getString(context.getString(R.string.pref_query), null);
+			final Query q = queryJson == null ? null : Query.fromJson(queryJson);
+
+			if (!query.equals(q))
+				loadData(true);
+		}
+	}
+
+	@Override
 	protected void onDestroy() {
 		unbinder.unbind();
 		super.onDestroy();
@@ -187,7 +229,18 @@ public class HomeController extends BaseController implements LoaderManager.Load
 	@NonNull
 	@Override
 	public Loader<List<SimpleArticle>> onCreateLoader(int id, @Nullable Bundle args) {
+
 		refreshLayout.setRefreshing(true);
+
+		final String queryJson = prefs.getString(context.getString(R.string.pref_query), null);
+
+		if (queryJson == null) {
+			query = Query.empty();
+			PreferenceUtils.edit(context, e -> e.putString(context.getString(R.string.pref_query), query.toJson()));
+		} else {
+			query = Query.fromJson(queryJson);
+		}
+
 		return new SimpleArticlesAsyncTaskLoader(context);
 	}
 
@@ -212,6 +265,12 @@ public class HomeController extends BaseController implements LoaderManager.Load
 
 	}
 
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals(context.getString(R.string.pref_query)))
+			loadData(true);
+	}
+
 	private static class SimpleArticlesAsyncTaskLoader extends AsyncTaskLoader<List<SimpleArticle>> {
 
 		SimpleArticlesAsyncTaskLoader(Context context) {
@@ -226,7 +285,7 @@ public class HomeController extends BaseController implements LoaderManager.Load
 
 		@Override
 		public List<SimpleArticle> loadInBackground() {
-			return NetworkUtils.fetchSimpleArticles();
+			return NetworkUtils.fetchSimpleArticles(getContext());
 		}
 	}
 }

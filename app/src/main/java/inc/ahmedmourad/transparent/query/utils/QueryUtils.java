@@ -28,7 +28,7 @@ import static inc.ahmedmourad.transparent.query.elements.model.QueryElement.TYPE
 
 public final class QueryUtils {
 
-	public static List<QueryElement> trim(@NonNull final List<QueryElement> elements) {
+	public static List<QueryElement> trim(@NonNull final List<? extends QueryElement> elements) {
 
 		final List<QueryElement> clone = new ArrayList<>(elements);
 

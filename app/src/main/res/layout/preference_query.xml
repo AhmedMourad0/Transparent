@@ -33,32 +33,36 @@
         android:paddingBottom="16dp">
 
         <Button
+            android:id="@+id/query_begin_group"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Begin Group" />
+            android:text="@string/begin_group" />
 
         <Button
+            android:id="@+id/query_end_group"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="End Group" />
+            android:text="@string/end_group" />
 
         <Button
+            android:id="@+id/query_and"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="And" />
+            android:text="@string/and" />
 
         <Button
+            android:id="@+id/query_or"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Or" />
+            android:text="@string/or" />
 
     </LinearLayout>
 
@@ -67,23 +71,35 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <EditText
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Keyword"
-            android:inputType="textPersonName"
-            android:maxLines="1"
-            android:scrollHorizontally="true" />
-
         <Button
+            android:id="@+id/query_clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?selectableItemBackground"
-            android:text="Accept" />
+            android:text="@string/clear" />
+
+        <EditText
+            android:id="@+id/query_keyword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/keyword"
+            android:inputType="textPersonName"
+            android:maxLines="1"
+            android:scrollHorizontally="true" />
+
+        <Button
+            android:id="@+id/query_enter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?selectableItemBackground"
+            android:text="@string/enter" />
 
 
     </LinearLayout>
