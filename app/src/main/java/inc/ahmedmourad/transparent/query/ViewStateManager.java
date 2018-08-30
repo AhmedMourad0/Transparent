@@ -91,7 +91,7 @@ public class ViewStateManager implements View.OnClickListener {
 				}
 			});
 
-		query.setOnElementAddedListener((elements, groups) -> {
+		query.setOnElementsChangedListener((elements, groups) -> {
 
 			if (displayFlexbox != null)
 				query.display(displayFlexbox);
@@ -148,42 +148,47 @@ public class ViewStateManager implements View.OnClickListener {
 		if (displayFlexbox != null)
 			displayFlexbox.removeAllViews();
 
-		query.setOnElementAddedListener(null);
+		query.setOnElementsChangedListener(null);
+	}
+
+	public void updateQuery(@NonNull final Query query) {
+		setQuery(query);
+		bind();
 	}
 
 	private void setQuery(@NonNull final Query query) {
 		this.query = query;
 	}
 
-	public void setDisplayFlexbox(@Nullable final FlexboxLayout displayFlexbox) {
+	private void setDisplayFlexbox(@Nullable final FlexboxLayout displayFlexbox) {
 		this.displayFlexbox = displayFlexbox;
 	}
 
-	public void setBeginGroupView(@Nullable final View beginGroupView) {
+	private void setBeginGroupView(@Nullable final View beginGroupView) {
 		this.beginGroupView = beginGroupView;
 	}
 
-	public void setEndGroupView(@Nullable final View endGroupView) {
+	private void setEndGroupView(@Nullable final View endGroupView) {
 		this.endGroupView = endGroupView;
 	}
 
-	public void setAndView(@Nullable final View andView) {
+	private void setAndView(@Nullable final View andView) {
 		this.andView = andView;
 	}
 
-	public void setOrView(@Nullable final View orView) {
+	private void setOrView(@Nullable final View orView) {
 		this.orView = orView;
 	}
 
-	public void setEnterView(@Nullable final View enterView) {
+	private void setEnterView(@Nullable final View enterView) {
 		this.enterView = enterView;
 	}
 
-	public void setClearView(@Nullable final View clearView) {
+	private void setClearView(@Nullable final View clearView) {
 		this.clearView = clearView;
 	}
 
-	public void setKeywordEditText(@Nullable EditText keywordEditText) {
+	private void setKeywordEditText(@Nullable EditText keywordEditText) {
 		this.keywordEditText = keywordEditText;
 	}
 

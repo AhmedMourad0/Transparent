@@ -1,4 +1,4 @@
-package inc.ahmedmourad.transparent.custom.state;
+package inc.ahmedmourad.transparent.custom.states;
 
 import android.os.Parcel;
 import android.os.Parcelable;

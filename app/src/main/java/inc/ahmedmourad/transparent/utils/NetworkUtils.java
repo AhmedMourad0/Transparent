@@ -1,6 +1,7 @@
 package inc.ahmedmourad.transparent.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import inc.ahmedmourad.transparent.BuildConfig;
 import inc.ahmedmourad.transparent.R;
+import inc.ahmedmourad.transparent.custom.preferences.DatePickerPreference;
 import inc.ahmedmourad.transparent.pojo.SimpleArticle;
 import inc.ahmedmourad.transparent.query.Query;
 
@@ -30,12 +32,13 @@ public final class NetworkUtils {
 	@NonNull
 	public static List<SimpleArticle> fetchSimpleArticles(@NonNull final Context context) {
 
-		//https://content.guardianapis.com/search?show-fields=thumbnail,byline,wordcount&q=QUERY&api-key=THE_GUARDIAN_API_KEY
+		//https://content.guardianapis.com/search?show-fields=thumbnail,byline,wordcount&q=QUERY&from-date=DATE&api-key=THE_GUARDIAN_API_KEY
 		final String BASE_URL = "https://content.guardianapis.com/";
 		final String PATH_SEARCH = "search";
 		final String PARAM_SHOW_FIELDS = "show-fields";
 		final String PARAM_PAGE_SIZE = "page-size";
 		final String PARAM_QUERY = "q";
+		final String PARAM_DATE = "from-date";
 		final String PARAM_API_KEY = "api-key";
 
 		final Uri.Builder builder = Uri.parse(BASE_URL).buildUpon()
@@ -43,11 +46,18 @@ public final class NetworkUtils {
 				.appendQueryParameter(PARAM_SHOW_FIELDS, "thumbnail,byline,wordcount")
 				.appendQueryParameter(PARAM_PAGE_SIZE, "20");
 
-		final String queryJson = PreferenceUtils.defaultPrefs(context).getString(context.getString(R.string.pref_query), null);
-		final Query q = queryJson == null ? null : Query.fromJson(queryJson);
+		final SharedPreferences prefs = PreferenceUtils.defaultPrefs(context);
 
-		if (q != null && !q.isEmpty())
-			builder.appendQueryParameter(PARAM_QUERY, q.toString());
+		final String queryJson = prefs.getString(context.getString(R.string.pref_query), null);
+		final Query query = queryJson == null ? null : Query.fromJson(queryJson);
+
+		if (query != null && !query.isEmpty())
+			builder.appendQueryParameter(PARAM_QUERY, query.toString());
+
+		final String date = prefs.getString(context.getString(R.string.pref_date), null);
+
+		if (date != null && !date.equals(DatePickerPreference.DEFAULT_VALUE))
+			builder.appendQueryParameter(PARAM_DATE, date);
 
 		return JsonUtils.extractSimpleArticles(getJsonStringFromUri(
 				builder.appendQueryParameter(PARAM_API_KEY, BuildConfig.THE_GUARDIAN_API_KEY)

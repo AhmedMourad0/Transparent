@@ -25,6 +25,9 @@ public class SettingsActivity extends AppCompatActivity {
 		unbinder = ButterKnife.bind(this);
 
 		setSupportActionBar(toolbar);
+
+		if (getSupportActionBar() != null)
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override

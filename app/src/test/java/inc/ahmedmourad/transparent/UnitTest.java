@@ -32,7 +32,7 @@ public class UnitTest {
 				.and()
 				.group(Group.with("D").or().param("E"))
 				.endGroup()
-				.toString();
+				.toString(true);
 
 		final String query1 = Query.with("A")
 				.and()
@@ -52,7 +52,7 @@ public class UnitTest {
 				.and()
 				.group(Group.with("D").or().param("E"))
 				.endGroup()
-				.toString();
+				.toString(true);
 
 		final String query2 = Query.with("A")
 				.and()
@@ -67,7 +67,7 @@ public class UnitTest {
 				.and()
 				.group(Group.with("E").or().param("F"))
 				.endGroup()
-				.toString();
+				.toString(true);
 
 		final Query query3 = Query.with("A")
 				.and()
@@ -110,7 +110,7 @@ public class UnitTest {
 		System.out.println(query);
 		System.out.println(query1);
 		System.out.println(query2);
-		System.out.println(query3.toString());
+		System.out.println(query3.toString(true));
 
 		final Gson gson = new GsonBuilder().registerTypeAdapter(List.class, new Serializer())
 				.registerTypeAdapter(List.class, new Deserializer())
@@ -120,7 +120,7 @@ public class UnitTest {
 
 		System.out.println(json);
 
-		final String query4 = gson.fromJson(json, Query.class).toString();
+		final String query4 = gson.fromJson(json, Query.class).toString(true);
 
 		System.out.println(query4);
 
@@ -169,7 +169,7 @@ public class UnitTest {
 		*/
 
 //		assertEquals("\"A\" AND \"B\" OR (\"C\" AND (\"D\" OR \"E\"))", query);
-		assertEquals("\"A\" AND (\"B\" OR \"C\") OR (\"D\" AND (\"E\" OR \"F\" AND (\"G\" AND \"H\") AND (\"I\" OR \"J\") OR (\"K\" AND \"L\") AND (\"M\" OR \"N\") AND \"O\") AND \"P\")", query3.toString());
+		assertEquals("\"A\" AND (\"B\" OR \"C\") OR (\"D\" AND (\"E\" OR \"F\" AND (\"G\" AND \"H\") AND (\"I\" OR \"J\") OR (\"K\" AND \"L\") AND (\"M\" OR \"N\") AND \"O\") AND \"P\")", query3.toString(true));
 		assertEquals("\"A\" AND (\"B\" OR \"C\") OR (\"D\" AND (\"E\" OR \"F\" AND (\"G\" AND \"H\") AND (\"I\" OR \"J\") OR (\"K\" AND \"L\") AND (\"M\" OR \"N\") AND \"O\") AND \"P\")", query4);
 	}
 }

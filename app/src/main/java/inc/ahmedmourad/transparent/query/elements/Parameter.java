@@ -37,7 +37,7 @@ public class Parameter implements QueryElement {
 	}
 
 	@NonNull
-	public String getValue() {
+	private String getValue() {
 		return value.trim();
 	}
 

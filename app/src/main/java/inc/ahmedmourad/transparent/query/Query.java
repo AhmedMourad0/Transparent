@@ -18,6 +18,7 @@ import inc.ahmedmourad.transparent.query.gson.deserializer.Deserializer;
 import inc.ahmedmourad.transparent.query.gson.serializer.Serializer;
 import inc.ahmedmourad.transparent.query.utils.QueryUtils;
 
+@SuppressWarnings("UnusedReturnValue")
 public class Query {
 
 	private List<QueryElement> elements = new ArrayList<>();
@@ -25,7 +26,7 @@ public class Query {
 	private final List<Group> groups = new ArrayList<>();
 
 	@Nullable
-	private transient OnElementAddedListener listener = null;
+	private transient OnElementsChangedListener listener = null;
 
 	private static final transient Gson gson;
 
@@ -65,23 +66,15 @@ public class Query {
 
 	@NonNull
 	public Query param(@NonNull final String parameter) {
-
 		add(Parameter.of(parameter));
-
-		if (listener != null)
-			listener.onElementAdded(elements, groups);
-
+		fireElementsChangedListener();
 		return this;
 	}
 
 	@NonNull
 	public Query group(@NonNull final Group group) {
-
 		add(group);
-
-		if (listener != null)
-			listener.onElementAdded(elements, groups);
-
+		fireElementsChangedListener();
 		return this;
 	}
 
@@ -92,9 +85,7 @@ public class Query {
 			throw new IllegalStateException("First element of a query or a group can't be a relation.");
 
 		add(Relation.of(Relation.TYPE_AND));
-
-		if (listener != null)
-			listener.onElementAdded(elements, groups);
+		fireElementsChangedListener();
 
 		return this;
 	}
@@ -107,8 +98,7 @@ public class Query {
 
 		add(Relation.of(Relation.TYPE_OR));
 
-		if (listener != null)
-			listener.onElementAdded(elements, groups);
+		fireElementsChangedListener();
 
 		return this;
 	}
@@ -140,12 +130,8 @@ public class Query {
 
 	@NonNull
 	public Query beginGroup() {
-
 		groups.add(new Group());
-
-		if (listener != null)
-			listener.onElementAdded(elements, groups);
-
+		fireElementsChangedListener();
 		return this;
 	}
 
@@ -166,20 +152,15 @@ public class Query {
 
 		groups.remove(group);
 
-		if (listener != null)
-			listener.onElementAdded(elements, groups);
+		fireElementsChangedListener();
 
 		return this;
 	}
 
 	public Query clear() {
-
 		elements.clear();
 		groups.clear();
-
-		if (listener != null)
-			listener.onElementAdded(elements, groups);
-
+		fireElementsChangedListener();
 		return this;
 	}
 
@@ -216,17 +197,25 @@ public class Query {
 		return QueryUtils.trim(elements).size() == 0 && QueryUtils.trim(groups).size() == 0;
 	}
 
-	void setOnElementAddedListener(@Nullable final OnElementAddedListener listener) {
-
+	void setOnElementsChangedListener(@Nullable final OnElementsChangedListener listener) {
 		this.listener = listener;
+		fireElementsChangedListener();
+	}
 
-		if (this.listener != null)
-			this.listener.onElementAdded(elements, groups);
+	private void fireElementsChangedListener() {
+		if (listener != null)
+			listener.onElementsChanged(elements, groups);
 	}
 
 	@NonNull
 	public String toJson() {
-		validate();
+		return toJson(false);
+	}
+
+	@NonNull
+	public String toJson(final boolean validate) {
+		if (validate)
+			validate();
 		return gson.toJson(this);
 	}
 
@@ -290,7 +279,7 @@ public class Query {
 	}
 
 	@FunctionalInterface
-	interface OnElementAddedListener {
-		void onElementAdded(@NonNull List<QueryElement> elements, @NonNull List<Group> groups);
+	interface OnElementsChangedListener {
+		void onElementsChanged(@NonNull List<QueryElement> elements, @NonNull List<Group> groups);
 	}
 }

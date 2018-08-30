@@ -15,6 +15,7 @@ import inc.ahmedmourad.transparent.R;
 import inc.ahmedmourad.transparent.query.elements.model.QueryElement;
 import inc.ahmedmourad.transparent.query.utils.QueryUtils;
 
+@SuppressWarnings("UnusedReturnValue")
 public class Group implements QueryElement {
 
 	@ColorRes

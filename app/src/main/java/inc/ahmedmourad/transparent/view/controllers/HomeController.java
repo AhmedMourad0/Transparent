@@ -267,7 +267,7 @@ public class HomeController extends BaseController implements LoaderManager.Load
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(context.getString(R.string.pref_query)))
+		if (key.equals(context.getString(R.string.pref_query)) || key.equals(context.getString(R.string.pref_date)))
 			loadData(true);
 	}
 

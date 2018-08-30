@@ -1,4 +1,4 @@
-package inc.ahmedmourad.transparent.custom;
+package inc.ahmedmourad.transparent.custom.preferences;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -16,13 +16,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import inc.ahmedmourad.transparent.R;
-import inc.ahmedmourad.transparent.custom.state.QuerySavedState;
+import inc.ahmedmourad.transparent.custom.states.QuerySavedState;
 import inc.ahmedmourad.transparent.query.Query;
 import inc.ahmedmourad.transparent.query.ViewStateManager;
 
 public class QueryPreference extends DialogPreference {
 
-	private static final String DEFAULT_VALUE = Query.empty().toJson();
+	public static final String DEFAULT_VALUE = Query.empty().toJson();
 
 	@SuppressWarnings("WeakerAccess")
 	@BindView(R.id.query_flexbox)
@@ -81,6 +81,7 @@ public class QueryPreference extends DialogPreference {
 			final String value = (String) defaultValue;
 			query = Query.fromJson(value);
 			persistString(value);
+			callChangeListener(value);
 		}
 	}
 
@@ -113,13 +114,14 @@ public class QueryPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(final boolean positiveResult) {
 
-		final String keyword = keywordEditText.getText().toString().trim();
-
-		if (query.isEmpty() && keyword.length() > 0)
-			query.param(keyword);
-
 		if (positiveResult) {
-			final String newValue = query.toJson();
+
+			final String keyword = keywordEditText.getText().toString().trim();
+
+			if (query.isEmpty() && keyword.length() > 0)
+				query.param(keyword);
+
+			final String newValue = query.toJson(true);
 			persistString(newValue);
 			callChangeListener(newValue);
 		}
@@ -146,18 +148,21 @@ public class QueryPreference extends DialogPreference {
 		super.onRestoreInstanceState(state.getSuperState());
 
 		query = Query.fromJson(state.getQuery());
+
+		if (viewStateManager != null)
+			viewStateManager.updateQuery(query);
 	}
 
-	//	@Override
-//	public void onActivityDestroy() {
-//		super.onActivityDestroy();
-//		unbindView();
-//	}
-//
 	private void unbindView() {
-		viewStateManager.release();
-		viewStateManager = null;
-		unbinder.unbind();
-		unbinder = null;
+
+		if (viewStateManager != null) {
+			viewStateManager.release();
+			viewStateManager = null;
+		}
+
+		if (unbinder != null) {
+			unbinder.unbind();
+			unbinder = null;
+		}
 	}
 }

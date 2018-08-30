@@ -5,9 +5,11 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 
 import inc.ahmedmourad.transparent.R;
-import inc.ahmedmourad.transparent.custom.QueryPreference;
+import inc.ahmedmourad.transparent.custom.preferences.DatePickerPreference;
+import inc.ahmedmourad.transparent.custom.preferences.QueryPreference;
 import inc.ahmedmourad.transparent.query.Query;
 
 public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
@@ -16,47 +18,42 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.pref_filter);
-		setHasOptionsMenu(true);
 
-		bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_query)));
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_query)), QueryPreference.DEFAULT_VALUE);
+		bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_date)), DatePickerPreference.DEFAULT_VALUE);
 	}
 
-	private void bindPreferenceSummaryToValue(Preference preference) {
+	private void bindPreferenceSummaryToValue(Preference preference, @NonNull final String defaultValue) {
 
 		preference.setOnPreferenceChangeListener(this);
 
 		onPreferenceChange(preference, PreferenceManager.getDefaultSharedPreferences(preference.getContext())
-				.getString(preference.getKey(), Query.empty().toJson())
+				.getString(preference.getKey(), defaultValue)
 		);
 	}
 
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//		int id = item.getItemId();
-//		if (id == android.R.id.home) {
-//			startActivity(new Intent(getActivity(), SettingsActivity.class));
-//			return true;
-//		}
-//		return super.onOptionsItemSelected(item);
-//	}
-
 	@Override
-	public boolean onPreferenceChange(Preference preference, Object value) {
+	public boolean onPreferenceChange(Preference preference, Object v) {
 
-		String stringValue = value.toString();
+		String value = v.toString();
 
 		if (ListPreference.class.isInstance(preference)) {
 
-			ListPreference listPreference = (ListPreference) preference;
-			int index = listPreference.findIndexOfValue(stringValue);
+			final ListPreference listPreference = (ListPreference) preference;
+
+			int index = listPreference.findIndexOfValue(value);
 
 			preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
 
 		} else if (QueryPreference.class.isInstance(preference)) {
 
-			final Query query = Query.fromJson(stringValue);
+			final Query query = Query.fromJson(value);
 
 			preference.setSummary(query.isEmpty() ? getString(R.string.all_categories) : query.toString());
+
+		} else if (DatePickerPreference.class.isInstance(preference)) {
+
+			preference.setSummary(value.equals(DatePickerPreference.DEFAULT_VALUE) ? getString(R.string.date_summary) : value);
 		}
 
 		return true;

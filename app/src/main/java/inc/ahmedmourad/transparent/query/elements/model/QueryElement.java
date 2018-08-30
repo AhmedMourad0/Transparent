@@ -22,6 +22,7 @@ public interface QueryElement {
 
 	boolean isRelation();
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	boolean isValid();
 
 	void validate();

@@ -42,7 +42,7 @@ public class Relation implements QueryElement {
 	}
 
 	@RelationType
-	public int getType() {
+	private int getType() {
 		return type;
 	}
 
