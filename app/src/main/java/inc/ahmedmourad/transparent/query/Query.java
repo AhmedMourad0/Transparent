@@ -44,13 +44,6 @@ public class Query {
 	}
 
 	@NonNull
-	public static Query withGroup() {
-		final Query query = new Query();
-		query.beginGroup();
-		return query;
-	}
-
-	@NonNull
 	public static Query fromJson(@NonNull final String json) {
 		return gson.fromJson(json, Query.class);
 	}
@@ -85,6 +78,7 @@ public class Query {
 			throw new IllegalStateException("First element of a query or a group can't be a relation.");
 
 		add(Relation.of(Relation.TYPE_AND));
+
 		fireElementsChangedListener();
 
 		return this;

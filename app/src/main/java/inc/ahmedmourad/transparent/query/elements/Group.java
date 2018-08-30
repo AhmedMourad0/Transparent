@@ -34,13 +34,6 @@ public class Group implements QueryElement {
 	}
 
 	@NonNull
-	public static Group with(@NonNull final Group g) {
-		final Group group = new Group();
-		group.add(g);
-		return group;
-	}
-
-	@NonNull
 	public Group param(@NonNull final String parameter) {
 		add(Parameter.of(parameter));
 		return this;
@@ -50,12 +43,6 @@ public class Group implements QueryElement {
 	public Group group(@NonNull final Group group) {
 		if (group.isValid())
 			add(group);
-		return this;
-	}
-
-	@NonNull
-	public Group and() {
-		add(Relation.of(Relation.TYPE_AND));
 		return this;
 	}
 
