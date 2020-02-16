@@ -5,6 +5,7 @@ A simple news mobile app that uses TheGuardian's api (also a Query sample).
 
 ## Key Concepts
 - A custom Query builder
+- Manually fetching and parsing data from an api service
 - Conductor, Gson, Picasso, ButterKnife
 - Preferences
 
